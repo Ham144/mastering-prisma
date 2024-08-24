@@ -13,8 +13,20 @@ datasource db {
 model User {
   id         Int     @id @default(autoincrement())
   name       String
-  email      String
-  phone      Int
+  email      String  @unique
+  phone      Int?
   isAdmin    Boolean @default(false)
   isVerified Boolean @default(false)
+}
+
+model Product {
+  id             Int      @id @default(autoincrement())
+  name           String   @unique
+  basePrice      Decimal
+  discount       Float
+  vouchers       String[]
+  remaining      Int
+  sold           Int
+  rating         Decimal
+  latestSoldDate DateTime
 }
