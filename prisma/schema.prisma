@@ -12,21 +12,127 @@ datasource db {
 
 model User {
   id         Int     @id @default(autoincrement())
-  name       String
+  name       String  @unique
   email      String  @unique
   phone      Int?
   isAdmin    Boolean @default(false)
   isVerified Boolean @default(false)
+  Posts      Post[]
+  Buyer      Buyer[]
 }
 
 model Product {
-  id             Int      @id @default(autoincrement())
-  name           String   @unique
+  id             Int       @id @default(autoincrement())
+  name           String    @unique
   basePrice      Decimal
-  discount       Float
-  vouchers       String[]
+  vouchers       Voucher[]
   remaining      Int
   sold           Int
   rating         Decimal
   latestSoldDate DateTime
+  buyers         Buyer[]
+}
+
+model Voucher {
+  id          Int      @id
+  Product     Product? @relation(fields: [productId], references: [id])
+  productId   Int?
+  discount    Decimal
+  expired     Boolean
+  expiredDate DateTime
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  title      String
+  postdate   DateTime
+  likes      Int
+  updatedate DateTime
+  user       User     @relation(fields: [userID], references: [id])
+  userID     Int
+}
+
+model Buyer {
+  id        Int      @id @default(autoincrement())
+  Product   Product? @relation(fields: [productId], references: [id])
+  productId Int?
+  Buyer     User     @relation(fields: [buyerName], references: [name])
+  buyerName String
+  money     Decimal
+}
+
+//relational many to many 
+model Message {
+  id                String    @id @default(uuid())
+  title             String    @unique
+  towards           Contact[] @relation("target numbers")
+  body              String
+  sendDate          DateTime  @default(now())
+  contactReceived   Contact?  @relation("all received messages", fields: [contactReceivedID], references: [id])
+  contactReceivedID String?
+}
+
+model Contact {
+  id               String    @id @default(uuid())
+  message          Message   @relation("target numbers", fields: [messageId], references: [id])
+  messageId        String
+  number           String    @unique
+  contact_name     String    @unique
+  createdAt        DateTime  @default(now())
+  receivedMessages Message[] @relation("all received messages")
+}
+
+model Provider {
+  id           String    @id @default(uuid())
+  providerName Providers @default(TELOMSEL)
+  perByteCost  Float
+  country      String    @default("indonesia")
+}
+
+enum Providers {
+  TELOMSEL
+  TRI
+  SMARTFREN
+  AXIS
+  XL
+}
+
+model UserPost {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  phone         String      @unique
+  age           Int
+  isAdmin       Boolean
+  writtenPost   PostMedia[] @relation("written")
+  favoritedPost PostMedia[] @relation("favorite")
+
+  userSetup   UserSetup? @relation(fields: [userSetupId], references: [id])
+  userSetupId String?    @unique
+}
+
+model PostMedia {
+  id            String     @id @default(uuid())
+  title         String     @unique
+  content       String
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  UserPost      UserPost   @relation("written", fields: [userId], references: [id])
+  userId        String
+  favoritedBy   UserPost?  @relation("favorite", fields: [favoritedById], references: [id])
+  favoritedById String?
+  //many to many relationship
+  categories    Category[]
+}
+
+model Category {
+  id           String      @id @default(uuid())
+  categoryName String
+  //many to many relationship
+  postmedia    PostMedia[]
+}
+
+model UserSetup {
+  id           String    @id @default(uuid())
+  emailupdates Boolean
+  UserPost     UserPost?
 }

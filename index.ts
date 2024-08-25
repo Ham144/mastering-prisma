@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+
 interface filter {
 	name?: String;
 	basePrice?: number;
@@ -81,21 +82,17 @@ async function main() {
 				{
 					name: "apple",
 					basePrice: 12.2,
-					discount: 0.1,
 					rating: 2.3,
 					latestSoldDate: new Date(),
 					sold: 0,
-					vouchers: ["1234", "4321", "1432", "1324"],
 					remaining: 3,
 				},
 				{
 					name: "banana",
 					basePrice: 16,
-					discount: 0.2,
 					rating: 3.5,
 					latestSoldDate: new Date(),
 					sold: 0,
-					vouchers: ["1234", "4321", "1432", "1324"],
 					remaining: 6,
 				},
 			],
@@ -122,7 +119,6 @@ async function main() {
 			where: {
 				name: filters.name?.toLowerCase(),
 				basePrice: filters?.basePrice,
-				discount: filters?.discount,
 				remaining: filters?.remaining,
 				sold: filters?.sold,
 				rating: filters?.rating,
