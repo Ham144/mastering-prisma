@@ -105,9 +105,8 @@ model UserPost {
   isAdmin       Boolean
   writtenPost   PostMedia[] @relation("written")
   favoritedPost PostMedia[] @relation("favorite")
-
-  userSetup   UserSetup? @relation(fields: [userSetupId], references: [id])
-  userSetupId String?    @unique
+  userSetup     UserSetup?  @relation(fields: [userSetupId], references: [id])
+  userSetupId   String?     @unique
 }
 
 model PostMedia {
@@ -135,4 +134,38 @@ model UserSetup {
   id           String    @id @default(uuid())
   emailupdates Boolean
   UserPost     UserPost?
+}
+
+model FacebookAccount {
+  id          Int            @id @default(autoincrement())
+  email       String         @unique
+  phone       String
+  tiktokID    Int            @unique
+  tiktok      TiktokAccount? @relation(fields: [tiktokID], references: [id])
+  emailPasser TiktokAccount? @relation("copy email from fb")
+}
+
+model TiktokAccount {
+  id            Int              @id @default(autoincrement())
+  facebook      FacebookAccount?
+  facebookEmail String           @unique
+  emailGetter   FacebookAccount  @relation("copy email from fb", fields: [facebookEmail], references: [email]) //one to one
+  postTiktoks   PostTiktok[]
+}
+
+model PostTiktok {
+  id            Int           @id @default(autoincrement())
+  cretedAt      DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  title         String        @unique
+  published     PostStatus    @default(DRAFT)
+  authorID      Int           @unique
+  TiktokAccount TiktokAccount @relation(fields: [authorID], references: [id]) //one to many
+}
+
+enum PostStatus {
+  UPLOADED
+  DRAFT
+  DELETED
+  PENDING
 }
